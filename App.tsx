@@ -1,131 +1,96 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export default function App() {
+  const [message, setMessage] = useState('');
+  const [chatLog, setChatlog] = useState<String[]>([]);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const handleSend = () => {
+    if (message.trim() === '') return;
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+    const updateLog = [...chatLog, `Jag: ${message}`];
+    setChatlog(updateLog);
+    setMessage('');
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+    setTimeout(() => {
+      let botResponse = '';
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+      const lower = message.toLowerCase();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+      if(lower.includes('klippa') || lower.includes('frisör')) {
+        botResponse = `Petra: Här är några frisörer i Ängelholm du kan ringa: \n
+        -G:son & Co: 070-7716054\n
+        -Saras Hårstudio: 0431-10700\n
+        -Studio Stil: 0431-410301`;
+      } else if (
+        lower.includes('sjuksköterska') ||
+        lower.includes('ssk') ||
+        lower.includes('medicin') 
+      ) {
+        botResponse = 'Petra: Du kan ringa eller skicka sms till sjuksköterskan på nummer 070-123456 eller skriva mail till: ssk@engelholmse';
+      } else {
+        botResponse = `Petra: Prova söka igen så jag kan hjälpa dig`;
+      }
+      setChatlog(prevLog => [...prevLog, botResponse]);
+    }, 1000);
   };
-
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView style={styles.chatArea}>
+        {chatLog.map((msg, index) => (
+          <Text key={index} style={styles.message}>{msg}</Text>
+        ))}
       </ScrollView>
-    </View>
+
+      <View style={styles.inputArea}>
+        <TextInput
+        style={styles.input}
+        placeholder="Tryck här för att skriva ett meddelande..."
+        placeholderTextColor="#333"
+        value={message}
+        onChangeText={setMessage}
+      />
+      <Button title="Skicka" onPress={handleSend} />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 10,
+    backgroundColor: '#d0e8d0',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  chatArea: {
+    flex: 1,
+    marginBottom: 10,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  message: {
+    padding: 8,
+    backgroundColor: '#eee',
+    borderRadius: 6,
+    marginBottom: 10,
+    color: '#333'
   },
-  highlight: {
-    fontWeight: '700',
+  inputArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#fef5e7',
+    borderRadius: 6,
+    padding: 10,
+    color: '#eee',
   },
 });
 
-export default App;
+
